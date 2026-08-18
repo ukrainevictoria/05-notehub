@@ -6,6 +6,7 @@ import NoteList from "../NoteList/NoteList";
 import NoteForm from "../NoteForm/NoteForm";
 import Modal from "../Modal/Modal";
 import Pagination from "../Pagination/Pagination";
+import SearchBox from "../SearchBox/SearchBox";
 import css from "./App.module.css";
 
 export const App = () => {
@@ -18,6 +19,9 @@ export const App = () => {
     setPage(1);
   }, 300);
 
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", page, search],
     queryFn: () => fetchNotes({ page, search, perPage: 12 }),
@@ -27,13 +31,8 @@ export const App = () => {
   return (
     <div className={css.container}>
       <header className={css.header}>
-        <input
-          type="text"
-          placeholder="Search notes..."
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className={css.searchInput}
-        />
-        <button onClick={() => setIsModalOpen(true)} className={css.addButton}>
+        <SearchBox onChange={handleSearchChange} />
+        <button onClick={handleOpenModal} className={css.addButton}>
           Add Note
         </button>
       </header>
@@ -51,9 +50,11 @@ export const App = () => {
         />
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <NoteForm onCancel={() => setIsModalOpen(false)} />
-      </Modal>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+          <NoteForm onCancel={handleCloseModal} />
+        </Modal>
+      )}
     </div>
   );
 };
